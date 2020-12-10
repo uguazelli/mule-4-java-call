@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="is-a-number" doc:id="a3a7158d-06bf-4def-85e8-0dbc639903d0" >
+		<scheduler doc:name="Scheduler" doc:id="097ab017-2c36-4f3e-9a99-3ab4ea49c49a" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="HOURS" startDelay="1"/>
+			</scheduling-strategy>
+		</scheduler>
+		<java:invoke-static doc:name="Invoke static" doc:id="6d827611-aac2-4155-817b-dae375924187" class="com.ideas.utils.CheckString" method="isNumber(java.lang.String)">
+			<java:args ><![CDATA[#[{
+	arg0: "ABC"
+}]]]></java:args>
+		</java:invoke-static>
+		<logger level="INFO" doc:name="Logger" doc:id="97b9ec21-6f46-43f4-ae84-26be8a36dfe0" />
+	</flow>
+	<flow name="read-json" doc:id="5bd71213-495f-497d-9944-981cc816d59f" >
+		<scheduler doc:name="Scheduler" doc:id="35d7d482-8c7b-4aeb-b532-7376780dbed0" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" startDelay="1" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<ee:transform doc:name="Transform Message" doc:id="a07e47b7-d8ec-4ee6-b57e-628f4be51472" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	firstName: "Albert",
+	lastName: "Einstein"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<java:invoke-static doc:name="Invoke static" doc:id="68cfb1da-56af-4344-a0ca-ffb6a989939a" class="com.ideas.utils.SimpleJson" method="ReplaceLastName(java.lang.String)">
+			<java:args ><![CDATA[#[{
+	arg0: write(payload, "application/json")
+}]]]></java:args>
+		</java:invoke-static>
+		<ee:transform doc:name="Transform Message" doc:id="88946a3f-6b53-4ecd-ae21-d462d07933da" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d1765db6-933c-4eeb-b586-5f5b220d9a49" />
+	</flow>
+</mule>
